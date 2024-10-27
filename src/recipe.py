@@ -2,9 +2,10 @@ from pathlib import Path
 from typing import Optional, Sequence 
 
 import sqlalchemy
-from sqlalchemy.orm import Mapped, mapped_column, Session
+from sqlalchemy.orm import Mapped, mapped_column, Session, relationship, selectinload
 
 import database
+from ingredients import Ingredient, recipe_ingredient_association
 import utils
 
 class Recipe(database.StorageBase): 
@@ -16,7 +17,14 @@ class Recipe(database.StorageBase):
         String name of the recipe. 
     """
     __tablename__: str = "recipes"
-    name: Mapped[str] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(sqlalchemy.String, primary_key=True)
+    ingredients: Mapped[list[Ingredient]] = relationship(
+        "Ingredient", secondary=recipe_ingredient_association, back_populates="recipes"
+    )
+
+Ingredient.recipes = relationship(
+    "Recipe", secondary=recipe_ingredient_association, back_populates="ingredients", lazy="joined"
+)
 
 class RecipeDatabase: 
     """Recipe database interface class, which essentially wraps a sql database and 
@@ -48,9 +56,11 @@ class RecipeDatabase:
 
     def read_all(self) -> Sequence[Recipe]: 
         with Session(self.engine) as session: 
-            return session.execute(sqlalchemy.select(Recipe).order_by(Recipe.name)).all()
+            return session.execute(sqlalchemy.select(Recipe).order_by(Recipe.name).options(selectinload(Recipe.ingredients))).all()
 
     def read(self, name: str) -> Sequence[Recipe]: 
         with Session(self.engine) as session: 
-            result = session.execute(sqlalchemy.select(Recipe).where(Recipe.name == name))
-            return result.all()
+            recipe = session.execute(sqlalchemy.select(Recipe).where(Recipe.name == name)).scalar_one_or_none()
+            if recipe: 
+                ingredients = recipe.ingredients
+        return recipe

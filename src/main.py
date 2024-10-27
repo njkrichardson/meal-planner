@@ -1,15 +1,29 @@
 import sqlalchemy 
 
 import database 
+import ingredients
 import recipe
 
 def main(): 
     db = recipe.RecipeDatabase()
 
+    # @solodova 1. read something from the external API 
+    
+    # @solodova 2. convert to out internal format? 
+
+    # @solodova 3. write to db 
+
     # write a few recipes to the db (if you haven't yet) 
     try: 
-        db.write(recipe.Recipe(name="Tuna pasta"))
-        db.write(recipe.Recipe(name="Mushroom pasta"))
+        tuna = ingredients.Ingredient(name="tuna")
+        mushrooms = ingredients.Ingredient(name="mushrooms")
+        pasta = ingredients.Ingredient(name="pasta")
+
+        tuna_pasta = recipe.Recipe(name="Tuna pasta", ingredients=[tuna, pasta])
+        mushroom_pasta = recipe.Recipe(name="Mushroom pasta", ingredients=[mushrooms, pasta])
+
+        db.write(tuna_pasta)
+        db.write(mushroom_pasta)
     except sqlalchemy.exc.IntegrityError: 
         # already wrote these to the db! 
         pass
