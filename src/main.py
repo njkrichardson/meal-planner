@@ -2,16 +2,15 @@ import sqlalchemy
 
 import ingredients
 import recipe
-from recipe_api import RecipeAPI
+from recipe_api import query_recipe_api
 
 def main(): 
     db = recipe.RecipeDatabase()
 
     # @solodova 1. read something from the external API
     # @solodova 2. convert to out internal format?
-    # @solodova 3. write to db 
-    recipe_api = RecipeAPI()
-    random_recipes = recipe_api.query_recipe(query='chicken', num_recipes=1)
+    # @solodova 3. write to db
+    random_recipes = query_recipe_api(query='chicken', num_recipes=1)
 
     try:
         db.write(random_recipes[0])
@@ -25,9 +24,9 @@ def main():
 
     # write a few recipes to the db (if you haven't yet) 
     try: 
-        tuna = ingredients.Ingredient(name="tuna", quantity=250) # quantities in g by default
-        mushrooms = ingredients.Ingredient(name="mushrooms", quantity=300)
-        pasta = ingredients.Ingredient(name="pasta", quantity=500)
+        tuna = ingredients.Ingredient(name="tuna", weight=250, quantity=None, quantity_measure=None) # quantities in g by default
+        mushrooms = ingredients.Ingredient(name="mushrooms", weight=300, quantity=None, quantity_measure=None)
+        pasta = ingredients.Ingredient(name="pasta", weight=500, quantity=None, quantity_measure=None)
 
         tuna_pasta = recipe.Recipe(name="Tuna pasta", ingredients=[tuna, pasta])
         mushroom_pasta = recipe.Recipe(name="Mushroom pasta", ingredients=[mushrooms, pasta])
