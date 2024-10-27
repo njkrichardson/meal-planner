@@ -1,6 +1,5 @@
 import sqlalchemy 
 
-import database 
 import ingredients
 import recipe
 
@@ -15,9 +14,9 @@ def main():
 
     # write a few recipes to the db (if you haven't yet) 
     try: 
-        tuna = ingredients.Ingredient(name="tuna")
-        mushrooms = ingredients.Ingredient(name="mushrooms")
-        pasta = ingredients.Ingredient(name="pasta")
+        tuna = ingredients.Ingredient(name="tuna", quantity=250) # quantities in g by default
+        mushrooms = ingredients.Ingredient(name="mushrooms", quantity=300)
+        pasta = ingredients.Ingredient(name="pasta", quantity=500)
 
         tuna_pasta = recipe.Recipe(name="Tuna pasta", ingredients=[tuna, pasta])
         mushroom_pasta = recipe.Recipe(name="Mushroom pasta", ingredients=[mushrooms, pasta])
