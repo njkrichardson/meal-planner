@@ -1,3 +1,4 @@
+import copy 
 import sqlalchemy 
 
 import ingredients
@@ -18,12 +19,20 @@ def main():
         tuna = ingredients.Ingredient(name="tuna", quantity=250) # quantities in g by default
         mushrooms = ingredients.Ingredient(name="mushrooms", quantity=300)
         pasta = ingredients.Ingredient(name="pasta", quantity=500)
+        pepper = ingredients.Ingredient(name="pepper", quantity=500)
 
         tuna_pasta = recipe.Recipe(name="Tuna pasta", ingredients=[tuna, pasta])
         mushroom_pasta = recipe.Recipe(name="Mushroom pasta", ingredients=[mushrooms, pasta])
+        tuna_mushrooms = recipe.Recipe(name="Tuna and mushrooms", ingredients=[mushrooms, tuna])
+        tuna_mushrooms_pepper = recipe.Recipe(name="Tuna and mushrooms and pepper", ingredients=[mushrooms, tuna, pepper])
+        pasta_mushrooms_pepper = recipe.Recipe(name="Pasta and mushrooms and pepper", ingredients=[pasta, mushrooms, pepper])
 
         db.write(tuna_pasta)
         db.write(mushroom_pasta)
+        db.write(tuna_mushrooms)
+        db.write(tuna_mushrooms_pepper)
+        db.write(pasta_mushrooms_pepper)
+
     except sqlalchemy.exc.IntegrityError: 
         # already wrote these to the db! 
         pass
