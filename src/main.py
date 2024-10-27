@@ -11,10 +11,10 @@ def main():
     # @solodova 2. convert to out internal format?
     # @solodova 3. write to db 
     recipe_api = RecipeAPI()
-    random_recipe = recipe_api.query_recipe(query='chicken')
+    random_recipes = recipe_api.query_recipe(query='chicken', num_recipes=1)
 
     try:
-        db.write(random_recipe)
+        db.write(random_recipes[0])
     except sqlalchemy.exc.IntegrityError:
         pass
 
