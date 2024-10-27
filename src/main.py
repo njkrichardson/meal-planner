@@ -4,34 +4,39 @@ import sqlalchemy
 import ingredients
 import planner 
 import recipe
+from recipe_api import query_recipe_api
 
 def main(): 
     db = recipe.RecipeDatabase()
 
-    # @solodova 1. read something from the external API 
-    
-    # @solodova 2. convert to out internal format? 
+    # @solodova 1. read something from the external API
+    # @solodova 2. convert to out internal format?
+    # @solodova 3. write to db
+    random_recipes = query_recipe_api(query='chicken', num_recipes=1)
 
-    # @solodova 3. write to db 
+    try:
+        db.write(random_recipes[0])
+    except sqlalchemy.exc.IntegrityError:
+        pass
+
+    # read the random recipe entry
+    result = db.read('Shredded chicken')
+    print(type(result))
+    print(result)
 
     # write a few recipes to the db (if you haven't yet) 
     try: 
-        tuna = ingredients.Ingredient(name="tuna", quantity=250) # quantities in g by default
-        mushrooms = ingredients.Ingredient(name="mushrooms", quantity=300)
-        pasta = ingredients.Ingredient(name="pasta", quantity=500)
-        pepper = ingredients.Ingredient(name="pepper", quantity=500)
+        tuna = ingredients.Ingredient(name="tuna", weight=250, quantity=None, quantity_measure=None) # quantities in g by default
+        mushrooms = ingredients.Ingredient(name="mushrooms", weight=300, quantity=None, quantity_measure=None)
+        pasta = ingredients.Ingredient(name="pasta", weight=500, quantity=None, quantity_measure=None)
 
         tuna_pasta = recipe.Recipe(name="Tuna pasta", ingredients=[tuna, pasta])
         mushroom_pasta = recipe.Recipe(name="Mushroom pasta", ingredients=[mushrooms, pasta])
         tuna_mushrooms = recipe.Recipe(name="Tuna and mushrooms", ingredients=[mushrooms, tuna])
-        tuna_mushrooms_pepper = recipe.Recipe(name="Tuna and mushrooms and pepper", ingredients=[mushrooms, tuna, pepper])
-        pasta_mushrooms_pepper = recipe.Recipe(name="Pasta and mushrooms and pepper", ingredients=[pasta, mushrooms, pepper])
 
         db.write(tuna_pasta)
         db.write(mushroom_pasta)
         db.write(tuna_mushrooms)
-        db.write(tuna_mushrooms_pepper)
-        db.write(pasta_mushrooms_pepper)
 
     except sqlalchemy.exc.IntegrityError: 
         # already wrote these to the db! 
