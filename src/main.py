@@ -2,15 +2,26 @@ import sqlalchemy
 
 import ingredients
 import recipe
+from recipe_api import RecipeAPI
 
 def main(): 
     db = recipe.RecipeDatabase()
 
-    # @solodova 1. read something from the external API 
-    
-    # @solodova 2. convert to out internal format? 
-
+    # @solodova 1. read something from the external API
+    # @solodova 2. convert to out internal format?
     # @solodova 3. write to db 
+    recipe_api = RecipeAPI()
+    random_recipe = recipe_api.query_recipe(query='chicken')
+
+    try:
+        db.write(random_recipe)
+    except sqlalchemy.exc.IntegrityError:
+        pass
+
+    # read the random recipe entry
+    result = db.read('Shredded chicken')
+    print(type(result))
+    print(result)
 
     # write a few recipes to the db (if you haven't yet) 
     try: 
