@@ -1,9 +1,11 @@
+from pathlib import Path
 from typing import Optional, Sequence 
 
 import sqlalchemy
 from sqlalchemy.orm import Mapped, mapped_column, Session
 
 import database
+import utils
 
 class Recipe(database.StorageBase): 
     """Base recipe table mapped dataclass. 
@@ -29,11 +31,13 @@ class RecipeDatabase:
     read(name: str) -> Sequence[Recipe]: 
         Read from the recipe database using the recipe name. 
     """
-    def __init__(self, in_memory: Optional[bool]=True, debug: Optional[bool]=False): 
-        if in_memory: 
-            self.engine = sqlalchemy.create_engine("sqlite+pysqlite:///:memory:", echo=debug)
+    storage_location: Path = utils.DATA_DIRECTORY / "recipes.db"
+
+    def __init__(self, debug: Optional[bool]=False, verbose: Optional[bool]=False): 
+        if debug: 
+            self.engine = sqlalchemy.create_engine("sqlite+pysqlite:///:memory:", echo=verbose)
         else: 
-            raise NotImplementedError(f"Persistent storage not implemented")
+            self.engine = sqlalchemy.create_engine(f"sqlite+pysqlite:///{str(self.storage_location.absolute())}", echo=verbose)
 
         database.StorageBase.metadata.create_all(self.engine)
 
