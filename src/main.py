@@ -24,9 +24,9 @@ def main():
 
     # write a few recipes to the db (if you haven't yet) 
     try: 
-        tuna = ingredients.Ingredient(name="tuna", quantity=250) # quantities in g by default
-        mushrooms = ingredients.Ingredient(name="mushrooms", quantity=300)
-        pasta = ingredients.Ingredient(name="pasta", quantity=500)
+        tuna = ingredients.Ingredient(name="tuna", weight=250, quantity=None, quantity_measure=None) # quantities in g by default
+        mushrooms = ingredients.Ingredient(name="mushrooms", weight=300, quantity=None, quantity_measure=None)
+        pasta = ingredients.Ingredient(name="pasta", weight=500, quantity=None, quantity_measure=None)
 
         tuna_pasta = recipe.Recipe(name="Tuna pasta", ingredients=[tuna, pasta])
         mushroom_pasta = recipe.Recipe(name="Mushroom pasta", ingredients=[mushrooms, pasta])

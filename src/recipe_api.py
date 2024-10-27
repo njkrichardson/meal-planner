@@ -69,7 +69,9 @@ def query_recipe_api(query: str,
         ingredients: List[Ingredient] = []
         for ingredient in response_recipe['ingredients']:
             ingredients.append(Ingredient(name=ingredient['food'],
-                                          quantity=int(ingredient['weight'])))
+                                          weight=int(ingredient['weight']),
+                                          quantity=ingredient['quantity'],
+                                          quantity_measure=ingredient['measure']))
 
         recipe: Recipe = Recipe(name=response_recipe['label'],
                                 ingredients=ingredients)
