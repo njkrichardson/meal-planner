@@ -1,6 +1,7 @@
 import sqlalchemy 
 
 import ingredients
+import planner 
 import recipe
 
 def main(): 
@@ -34,6 +35,12 @@ def main():
 
     # read everything in the db 
     print(db.read_all())
+
+    # using the planner 
+    meal_planner = planner.MealPlanner(db)
+    proposal = meal_planner.generate_proposal(planner.ProposalStrategies.RANDOM)
+
+    print(f"Proposed meal plan: {proposal}")
 
 if __name__=="__main__": 
     main()
