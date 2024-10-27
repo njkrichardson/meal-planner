@@ -14,55 +14,6 @@ from rich.progress import Progress
 
 import utils 
 
-class suppress_stdout_stderr(object):
-    def __enter__(self):
-        self.outnull_file = open(os.devnull, 'w')
-        self.errnull_file = open(os.devnull, 'w')
-
-        self.old_stdout_fileno_undup    = sys.stdout.fileno()
-        self.old_stderr_fileno_undup    = sys.stderr.fileno()
-
-        self.old_stdout_fileno = os.dup ( sys.stdout.fileno() )
-        self.old_stderr_fileno = os.dup ( sys.stderr.fileno() )
-
-        self.old_stdout = sys.stdout
-        self.old_stderr = sys.stderr
-
-        os.dup2 ( self.outnull_file.fileno(), self.old_stdout_fileno_undup )
-        os.dup2 ( self.errnull_file.fileno(), self.old_stderr_fileno_undup )
-
-        sys.stdout = self.outnull_file        
-        sys.stderr = self.errnull_file
-        return self
-
-    def __exit__(self, *_):        
-        sys.stdout = self.old_stdout
-        sys.stderr = self.old_stderr
-
-        os.dup2 ( self.old_stdout_fileno, self.old_stdout_fileno_undup )
-        os.dup2 ( self.old_stderr_fileno, self.old_stderr_fileno_undup )
-
-        os.close ( self.old_stdout_fileno )
-        os.close ( self.old_stderr_fileno )
-
-        self.outnull_file.close()
-        self.errnull_file.close()
-
-LLAMA_CPP_URI: str = "https://github.com/ggerganov/llama.cpp"
-LLAMA_CPP_DIRECTORY: Path = utils.PROJECT_DIRECTORY / "llama.cpp"
-LLAMA_CPP_BIN: Path = LLAMA_CPP_DIRECTORY / "llama-cli"
-
-def _build_llamacpp() -> None: 
-    if not LLAMA_CPP_DIRECTORY.exists(): 
-        print("Cloning the repository...")
-        git.Repo.clone_from(LLAMA_CPP_URI, str(LLAMA_CPP_DIRECTORY))
-
-    # build the project 
-    if not LLAMA_CPP_BIN.exists(): 
-        print("Building the project")
-        result = subprocess.run(["make"], stdout=subprocess.PIPE, cwd=str(LLAMA_CPP_DIRECTORY))
-        print("Finished building the project")
-
 @dataclasses.dataclass
 class LLMConfig: 
     # generation
@@ -81,14 +32,13 @@ class LLM(Llama):
         if not self.GGUF_BIN.exists() and not self.config.lazy: 
             self._download()
 
-        with suppress_stdout_stderr(): 
+        with utils.SuppressionContext(): 
             super().__init__(
                 model_path=str(self.GGUF_BIN), 
                 n_ctx=self.config.context_size, 
             )
 
     def _download(self) -> None: 
-        _build_llamacpp()
         response = requests.get(self.GGUF_URI, stream=True, timeout=5)
 
         total_num_bytes: int = int(response.headers.get("content-length", 0))
@@ -105,7 +55,7 @@ class LLM(Llama):
                     file.write(data)
 
     def __call__(self, prompt: str) -> str: 
-        with suppress_stdout_stderr(): 
+        with utils.SuppressionContext(): 
             output = super().__call__(
                 prompt, 
                 max_tokens=self.config.max_tokens, 
