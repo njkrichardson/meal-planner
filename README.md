@@ -12,4 +12,6 @@ to build the docker image. Then use
 $ make docker-run 
 ```
 
-to start the container runtime. ,
+to start the container runtime.
+
+**Important**: Make sure to populate `.env` with your Edamam credentials. 
