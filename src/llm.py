@@ -50,7 +50,6 @@ class LLM(Llama):
         model_binary_size: int = self.GGUF_BIN.stat().st_size 
         return total_num_bytes == model_binary_size
 
-
     def _download(self) -> None: 
         response = requests.get(self.GGUF_URI, stream=True, timeout=5)
 
@@ -60,12 +59,16 @@ class LLM(Llama):
         print(f"Model binary is {utils.human_bytes_str(total_num_bytes)}")
         print(f"Block size {utils.human_bytes_str(block_size)}")
 
-        with Progress() as progress: 
-            download_task = progress.add_task("[red]Downloading...", total=total_num_bytes)
-            with open(self.GGUF_BIN, "wb") as file:
-                for data in response.iter_content(block_size):
-                    progress.update(download_task, advance=len(data))
-                    file.write(data)
+        try: 
+            with Progress() as progress: 
+                download_task = progress.add_task("[red]Downloading...", total=total_num_bytes)
+                with open(self.GGUF_BIN, "wb") as file:
+                    for data in response.iter_content(block_size):
+                        progress.update(download_task, advance=len(data))
+                        file.write(data)
+        except Exception: 
+            print(f"Download using requests failed... falling back to curl")
+            subprocess.run([f"curl -o {str(self.GGUF_BIN)} -L {self.GGUF_URI}"], check=True)
 
     def __call__(self, prompt: str) -> str: 
         with utils.SuppressionContext(): 
