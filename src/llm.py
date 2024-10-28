@@ -29,7 +29,7 @@ class LLM(Llama):
 
     def __init__(self, config: LLMConfig): 
         self.config = config
-        if not self.GGUF_BIN.exists() and not self.config.lazy: 
+        if not self._model_binary_present() and not self.config.lazy: 
             self._download()
 
         with utils.SuppressionContext(): 
@@ -37,6 +37,19 @@ class LLM(Llama):
                 model_path=str(self.GGUF_BIN), 
                 n_ctx=self.config.context_size, 
             )
+
+    def _model_binary_present(self) -> bool: 
+        """Checks whether the desired model binary is present 
+        and has the right size. 
+        """
+        if not self.GGUF_BIN.exists(): 
+            return False
+
+        response = requests.get(self.GGUF_URI, stream=True, timeout=5)
+        total_num_bytes: int = int(response.headers.get("content-length", 0))
+        model_binary_size: int = self.GGUF_BIN.stat().st_size 
+        return total_num_bytes == model_binary_size
+
 
     def _download(self) -> None: 
         response = requests.get(self.GGUF_URI, stream=True, timeout=5)
