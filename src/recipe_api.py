@@ -1,3 +1,4 @@
+import os 
 from typing import Optional, List
 
 import requests
@@ -5,7 +6,6 @@ import requests
 from ingredients import Ingredient
 from recipe import Recipe
 
-API_KEY = '53ddf2df831e8d28f7d194d9451153d1'
 application_id = "01f46f06"
 url = "https://api.edamam.com/api/recipes/v2"
 
@@ -46,7 +46,7 @@ def query_recipe_api(query: str,
             range_num_ingredients_input = f"{range_num_ingredients[0]}-{range_num_ingredients[1]}"
 
     response = requests.get(url, params={'type': 'public',
-                                         'app_key': API_KEY,
+                                         'app_key': os.environ["API_KEY"],
                                          'app_id': application_id,
                                          'q': query,
                                          'mealType': meal_type,
